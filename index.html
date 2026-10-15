@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Хот-дог Анас</title>
+<style>
+body{font-family:Arial;background:#fff8ef;margin:0;color:#222}
+header{background:#b5261e;color:white;padding:22px;text-align:center}
+h1{margin:0}
+main{padding:16px;max-width:600px;margin:auto}
+.item{background:white;padding:14px;margin:12px 0;border-radius:12px;box-shadow:0 2px 8px #ddd}
+button{background:#b5261e;color:white;border:0;padding:12px;border-radius:8px;font-size:16px}
+.price{font-weight:bold;color:#b5261e}
+#cart{background:white;padding:15px;border-radius:12px}
+input,select{padding:12px;width:90%;margin:6px 0;border:1px solid #ccc;border-radius:8px}
+</style>
+</head>
+<body>
+<header><h1>🌭 Хот-дог Анас</h1><p>Фармоиши таомҳои дӯстдоштаат</p></header>
+<main>
+<label>Забон / Язык:</label>
+<select id="lang" onchange="changeLang()">
+<option value="tg">Тоҷикӣ</option><option value="ru">Русский</option>
+</select>
+<div id="menu"></div>
+<div id="cart"><h2 id="cartTitle">🛒 Сабад</h2><div id="orders">Ҳоло сабад холӣ аст</div><h3 id="total">Ҳамагӣ: 0 сомонӣ</h3>
+<input id="customer" placeholder="Ному насаб">
+<input id="phone" placeholder="Рақами телефон">
+<input id="address" placeholder="Суроға (барои расонидан)">
+<select id="delivery"><option value="pickup">Аз дӯкон мегирам</option><option value="delivery">Ба хона расонед</option></select>
+<button onclick="checkout()" id="submit">Фармоиш додан</button>
+</div>
+</main>
+<script>
+const products=[
+["Хот-дог",15],["Шаурма",25],["Сосиска",8],
+["Пирожки",5],["Картошка фри",12],["Тухмбирён",10],["Нӯшокӣ",5]
+];
+let cart={},lang="tg";
+function changeLang(){lang=document.getElementById("lang").value;render()}
+function render(){
+document.getElementById("menu").innerHTML=products.map((p,i)=>`<div class="item"><b>${lang==="tg"?p[0]:["Хот-дог","Шаурма","Сосиска","Пирожки","Картофель фри","Яичница","Напиток"][i]}</b><p class="price">${p[1]} сомонӣ</p><button onclick="add(${i})">${lang==="tg"?"Илова кардан":"Добавить"}</button></div>`).join("");
+document.getElementById("cartTitle").textContent=lang==="tg"?"🛒 Сабад":"🛒 Корзина";
+document.getElementById("submit").textContent=lang==="tg"?"Фармоиш додан":"Оформить заказ";
+updateCart()
+}
+function add(i){cart[i]=(cart[i]||0)+1;updateCart()}
+function updateCart(){
+let ids=Object.keys(cart);
+document.getElementById("orders").innerHTML=ids.length?ids.map(i=>`${products[i][0]} × ${cart[i]} — ${products[i][1]*cart[i]} сомонӣ`).join("<br>"):(lang==="tg"?"Сабад холӣ аст":"Корзина пуста");
+let sum=ids.reduce((s,i)=>s+products[i][1]*cart[i],0);
+document.getElementById("total").textContent=(lang==="tg"?"Ҳамагӣ: ":"Итого: ")+sum+" сомонӣ";
+}
+function checkout(){
+if(!Object.keys(cart).length){alert("Аввал таом интихоб кун");return}
+if(!document.getElementById("customer").value||!document.getElementById("phone").value){alert("Ном ва телефонро навис");return}
+let order={date:new Date().toLocaleString(),customer:document.getElementById("customer").value,phone:document.getElementById("phone").value,address:document.getElementById("address").value,delivery:document.getElementById("delivery").value,items:cart,total:Object.keys(cart).reduce((s,i)=>s+products[i][1]*cart[i],0)};
+let saved=JSON.parse(localStorage.getItem("anasOrders")||"[]");saved.push(order);localStorage.setItem("anasOrders",JSON.stringify(saved));
+alert(lang==="tg"?"Фармоиш дар ҳамин телефон сабт шуд. Барои фиристодан ба дӯкон сервер лозим аст.":"Заказ сохранён на этом телефоне. Для передачи в магазин нужен сервер.");
+cart={};updateCart()
+}
+render();
+</script>
+</body>
+</html>
